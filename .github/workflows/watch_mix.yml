@@ -35,5 +35,5 @@ jobs:
         CLIENT_SECRET: ${{ secrets.SPOTIFY_CLIENT_SECRET }}
         REFRESH_TOKEN: ${{ secrets.SPOTIFY_REFRESH_TOKEN }}
         REDIRECT_URI:  ${{ secrets.SPOTIFY_REDIRECT_URI }}
-        PLAYLIST_ID:   ${{ secrets.PLAYLIST_ID }}   # 7gAsZNmkP00WpXTJMCA12w
+        PLAYLIST_ID:   ${{ secrets.PLAYLIST_ID }}
       run:  python src/assets/gerar_watch_mix.py

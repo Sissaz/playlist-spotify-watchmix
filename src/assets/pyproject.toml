@@ -2,9 +2,7 @@
 name = "gerar_watch_mix"
 version = "0.1.0"
 description = ""
-authors = [
-    {name = "Your Name",email = "you@example.com"}
-]
+authors = ["Sissa", "<example@example.com>"]
 
 [tool.poetry.dependencies]
 python = "^3.12"
