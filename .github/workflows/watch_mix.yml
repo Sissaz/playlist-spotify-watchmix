@@ -37,5 +37,6 @@ jobs:
         REFRESH_TOKEN: ${{ secrets.SPOTIFY_REFRESH_TOKEN }}
         REDIRECT_URI:  ${{ secrets.SPOTIFY_REDIRECT_URI }}
         PLAYLIST_ID:   ${{ secrets.PLAYLIST_ID }}
+        GITHUB_ACTIONS: "true"
       run:  python gerar_watch_mix.py
 

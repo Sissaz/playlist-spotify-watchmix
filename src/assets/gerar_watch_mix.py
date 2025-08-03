@@ -7,6 +7,12 @@ from dotenv import load_dotenv
 # ---------- Função para garantir que o .env exista ----------
 def garantir_env():
     env_path = ".env"
+
+    # Evita erro em ambientes não interativos como GitHub Actions
+    if os.getenv("GITHUB_ACTIONS") == "true":
+        print("📦 Ambiente CI detectado. Pulando criação do .env.")
+        return
+
     if not os.path.exists(env_path):
         print("⚙️  Arquivo .env não encontrado. Vamos criá-lo agora.")
         client_id     = input("Digite seu CLIENT_ID: ").strip()
