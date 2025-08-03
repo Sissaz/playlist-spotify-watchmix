@@ -48,7 +48,7 @@ PLAYLIST_ID=id_da_sua_playlist_watchmix
 
 ---
 
-## ▶️ Execução manual
+## Execução manual
 
 Com o ambiente virtual ativado:
 
