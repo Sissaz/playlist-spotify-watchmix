@@ -25,7 +25,7 @@ SCOPES        = "user-library-read playlist-modify-private"
 CLIENT_ID     = os.getenv("CLIENT_ID")
 CLIENT_SECRET = os.getenv("CLIENT_SECRET")
 REFRESH_TOKEN = os.getenv("REFRESH_TOKEN")
-REDIRECT_URI  = "http://localhost:8888/callback"
+REDIRECT_URI  = os.getenv("REDIRECT_URI")
 FIXED_PL_ID   = os.getenv("PLAYLIST_ID")      # ← já está no seu .env
 
 SPOTIFY_SAVED = "https://api.spotify.com/v1/me/tracks"

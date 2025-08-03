@@ -56,6 +56,7 @@ PLAYLIST_ID=
 Com o ambiente virtual ativado:
 
 ```bash
+poetry shell
 poetry run gerar_watch_mix.py
 ```
 
