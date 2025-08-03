@@ -78,7 +78,7 @@ def gerar_token():
     # Atualiza o .env automaticamente com o refresh token
     with open(".env", "a") as f:
         f.write(f"REFRESH_TOKEN={refresh}\n")
-    print("\n✅ Refresh Token salvo automaticamente no .env")
+    print("\n✅ Refresh Token salvo automaticamente no .env. Por favor, aguarde o script finalizar o job.")
 
     return access, refresh
 
