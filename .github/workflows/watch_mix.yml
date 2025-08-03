@@ -30,6 +30,7 @@ jobs:
 
     # 4) executa o script
     - name: Run gerar_watch_mix.py
+      working-directory: ./src/assets
       env:
         CLIENT_ID:     ${{ secrets.SPOTIFY_CLIENT_ID }}
         CLIENT_SECRET: ${{ secrets.SPOTIFY_CLIENT_SECRET }}
