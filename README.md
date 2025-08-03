@@ -26,6 +26,9 @@ Este projeto gera uma playlist chamada **Watch Mix** com faixas aleatórias das 
 ```bash
 git clone https://github.com/Sissaz/playlist-spotify-watchmix.git
 cd playlist-spotify-watchmix
+cd src
+cd assets
+
 ```
 
 2. **Configure o ambiente com Poetry:**
@@ -34,7 +37,7 @@ cd playlist-spotify-watchmix
 poetry install
 ```
 
-3. **Crie um arquivo `.env` na raiz ou dentro de `src/assets/` com os dados da sua API:**
+3. **Crie um arquivo `.env` dentro de `src/assets/` com os dados da sua API:**
 
 ```env
 CLIENT_ID=seu_client_id
