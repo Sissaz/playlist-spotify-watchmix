@@ -75,7 +75,7 @@ poetry shell
 Rode o script:
 
 ```powershell
-poetry run python watch_mix.py
+poetry run python gerar_watch_mix.py
 ```
 
 ### 3. Primeira execução: forneça suas credenciais do Spotify
