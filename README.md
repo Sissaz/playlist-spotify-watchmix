@@ -14,6 +14,7 @@ Este projeto gera uma playlist chamada **Watch Mix** com faixas aleatórias das 
 ## Pré-requisitos
 
 * Python 3.12+
+* Se você nunca usou o git antes, certifique-se de ter ele instalado. Você pode baixar aqui: https://git-scm.com/downloads
 * Conta no [Spotify Developer Dashboard](https://developer.spotify.com/dashboard)
 * Um repositório no GitHub para configurar o agendamento automático (opcional)
 
@@ -21,15 +22,21 @@ Este projeto gera uma playlist chamada **Watch Mix** com faixas aleatórias das 
 
 ## Instalação
 
-1. **Clone o repositório:**
+1. **Clone o repositório e acesse a pasta onde o script está:**
 
+Abra PowerShell no Windows e execute o comando abaixo para copiar os arquivos do projeto do GitHub para o seu computador:
 ```bash
 git clone https://github.com/Sissaz/playlist-spotify-watchmix.git
-cd playlist-spotify-watchmix
-cd src
-cd assets
-
 ```
+
+```bash
+cd playlist-spotify-watchmix
+```
+
+```bash
+cd src/assets
+```
+
 
 2. **Configure o ambiente com Poetry:**
 
@@ -57,6 +64,9 @@ Com o ambiente virtual ativado:
 
 ```bash
 poetry shell
+```
+
+```bash
 poetry run python gerar_watch_mix.py
 ```
 
