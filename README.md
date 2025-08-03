@@ -39,7 +39,7 @@ poetry install
 ```env
 CLIENT_ID=seu_client_id
 CLIENT_SECRET=seu_client_secret
-REDIRECT_URI=http://localhost:8888/callback
+REDIRECT_URI=https://localhost:8888/callback
 REFRESH_TOKEN=seu_refresh_token
 PLAYLIST_ID=id_da_sua_playlist_watchmix
 ```
