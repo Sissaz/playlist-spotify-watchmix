@@ -26,10 +26,10 @@ Este projeto gera uma playlist chamada **Watch Mix** com faixas aleatórias das 
 
 ### 1. Crie uma pasta para o projeto
 
-Abra o **PowerShell** do Windows e execute os comandos abaixo para criar e acessar a pasta do projeto:
-
 Os comandos abaixo acessam automaticamente sua Área de Trabalho (Desktop), criam uma nova pasta chamada `playlist-spotify-watchmix` e entram nela.
 Caso prefira criar a pasta em outro local (como em `Documentos`, `Downloads` ou outro diretório), você pode ignorar esses comandos. Basta criar a pasta manualmente onde desejar, abrir o **PowerShell dentro dela** e seguir a partir do **passo 2** normalmente.
+
+Abra o **PowerShell** do Windows e execute os comandos abaixo para criar e acessar a pasta do projeto:
 
 ```powershell
 cd ([Environment]::GetFolderPath('Desktop'))
