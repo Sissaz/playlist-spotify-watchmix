@@ -87,8 +87,8 @@ Ao rodar o script pela primeira vez, você será solicitado a informar:
 
 Esses dados são obtidos ao registrar seu app no [Spotify Developer Dashboard](https://developer.spotify.com/dashboard).
 
-![Watch Mix](Screenshot_2.png)
-![Watch Mix](Screenshot_3.png)
+![Screenshot](src/assets/images/Screenshot_2.png)
+![Screenshot](src/assets/images/Screenshot_3.png)
 
 
 > Após essa etapa, o script abrirá uma janela no navegador para autorizar o acesso à sua conta. O token será salvo automaticamente no `.env`.
