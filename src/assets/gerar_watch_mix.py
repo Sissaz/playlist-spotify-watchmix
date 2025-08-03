@@ -7,7 +7,7 @@ CLIENT_ID=...
 CLIENT_SECRET=...
 REDIRECT_URI=http://localhost:8888/callback
 REFRESH_TOKEN=...            # obtido após 1ª execução
-PLAYLIST_ID=7gAsZNmkP00WpXTJMCA12w   # ID fixo da sua Watch Mix
+PLAYLIST_ID=...   # ID fixo da sua Watch Mix
 """
 
 import os, random, time, threading, requests, webbrowser
