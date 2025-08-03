@@ -92,9 +92,6 @@ def garantir_env():
 
 # ---------- CONFIG ----------
 
-garantir_env()
-load_dotenv()
-
 TARGET_SIZE   = 30
 PLAYLIST_NAME = "Watch Mix"
 SCOPES        = "user-library-read playlist-modify-private"
