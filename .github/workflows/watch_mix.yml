@@ -1,0 +1,38 @@
+name: Update Watch Mix
+
+# ─── quando roda ────────────────────────────────────────────────────────────────
+on:
+  schedule:
+    # roda todo dia às 05:00 BRT  (08:00 UTC)
+    - cron: '0 8 * * *'
+  workflow_dispatch:      # botão “Run workflow” no GitHub
+
+jobs:
+  watch-mix:
+    runs-on: ubuntu-latest
+
+    steps:
+    # 1) baixa o código
+    - uses: actions/checkout@v4
+
+    # 2) instala Python 3.12
+    - uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
+
+    # 3) instala Poetry e dependências (sem empacotar o projeto)
+    - name: Install Poetry + deps
+      run: |
+        pip install poetry~=2.1
+        poetry config virtualenvs.create false
+        poetry install --no-root
+
+    # 4) executa o script
+    - name: Run gerar_watch_mix.py
+      env:
+        CLIENT_ID:     ${{ secrets.SPOTIFY_CLIENT_ID }}
+        CLIENT_SECRET: ${{ secrets.SPOTIFY_CLIENT_SECRET }}
+        REFRESH_TOKEN: ${{ secrets.SPOTIFY_REFRESH_TOKEN }}
+        REDIRECT_URI:  ${{ secrets.SPOTIFY_REDIRECT_URI }}
+        PLAYLIST_ID:   ${{ secrets.PLAYLIST_ID }}   # 7gAsZNmkP00WpXTJMCA12w
+      run:  python src/assets/gerar_watch_mix.py
