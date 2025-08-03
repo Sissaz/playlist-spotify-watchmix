@@ -42,7 +42,7 @@ poetry install
 ```env
 CLIENT_ID=seu_client_id
 CLIENT_SECRET=seu_client_secret
-REDIRECT_URI=https://localhost:8888/callback
+REDIRECT_URI=http://127.0.0.1:8888/callback
 REFRESH_TOKEN=
 PLAYLIST_ID=
 ```
@@ -57,7 +57,7 @@ Com o ambiente virtual ativado:
 
 ```bash
 poetry shell
-poetry run gerar_watch_mix.py
+poetry run python gerar_watch_mix.py
 ```
 
 ---

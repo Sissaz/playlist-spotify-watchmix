@@ -5,7 +5,7 @@ das Liked Songs para sincronizar com o Apple Watch.
 .env necessário:
 CLIENT_ID=...
 CLIENT_SECRET=...
-REDIRECT_URI=http://localhost:8888/callback
+REDIRECT_URI=http://127.0.0.1:8888/callback
 REFRESH_TOKEN=...            # obtido após 1ª execução
 PLAYLIST_ID=...   # ID fixo da sua Watch Mix
 """
@@ -35,7 +35,7 @@ CREATE_PL_URL = "https://api.spotify.com/v1/users/{uid}/playlists"
 # ---------- OAuth infra ----------
 app, auth_code = Flask(__name__), None
 class ServerThread(threading.Thread):
-    def __init__(self, app): super().__init__(); self.server = make_server('localhost', 8888, app)
+    def __init__(self, app): super().__init__(); self.server = make_server('127.0.0.1', 8888, app)
     def run(self): self.server.serve_forever()
     def shutdown(self): self.server.shutdown()
 
