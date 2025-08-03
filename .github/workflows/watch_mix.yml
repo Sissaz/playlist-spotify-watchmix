@@ -22,7 +22,7 @@ jobs:
 
     # 3) instala Poetry e dependências (sem empacotar o projeto)
     - name: Install Poetry + deps
-      working-directory: ./src
+      working-directory: ./src/assets
       run: |
         pip install poetry~=2.1
         poetry config virtualenvs.create false
