@@ -6,22 +6,9 @@ authors = ["Sissa", "<example@example.com>"]
 
 [tool.poetry.dependencies]
 python = "^3.12"
-duckdb = "^1.0.0"
-gdown = "^5.2.0"
-spotipy = "^2.24.0"
+flask = "^3.1.0"
 python-dotenv = "^1.0.1"
-pandas = "^2.2.2"
-openpyxl = "^3.1.5"
-flask = "^3.0.3"
-pyautogui = "^0.9.54"
-keyboard = "^0.13.5"
-datetime = "^5.5"
-supabase = "^2.7.3"
-psycopg2-binary = "^2.9.9"
-psycopg2 = "^2.9.9"
 requests = "^2.32.3"
-tqdm = "^4.66.5"
-
 
 [build-system]
 requires = ["poetry-core"]
