@@ -63,7 +63,7 @@ def gerar_token():
     access, refresh = tk["access_token"], tk.get("refresh_token")
     print("\nAccess Token :", access)
     print("Refresh Token:", refresh)
-    print(">>> copie e cole no .env como REFRESH_TOKEN <<<\n")
+    print(">>> copie e cole o Refresh Token no .env como REFRESH_TOKEN <<<\n")
     return access, refresh
 
 def renovar_token(refresh):

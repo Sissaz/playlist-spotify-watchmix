@@ -43,8 +43,8 @@ poetry install
 CLIENT_ID=seu_client_id
 CLIENT_SECRET=seu_client_secret
 REDIRECT_URI=https://localhost:8888/callback
-REFRESH_TOKEN=seu_refresh_token
-PLAYLIST_ID=id_da_sua_playlist_watchmix
+REFRESH_TOKEN=
+PLAYLIST_ID=
 ```
 
 *Você pode obter esses valores ao criar um app em [https://developer.spotify.com/dashboard](https://developer.spotify.com/dashboard).*
