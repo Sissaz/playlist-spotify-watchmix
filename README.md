@@ -57,10 +57,6 @@ cd playlist-spotify-watchmix\src\assets
 
 ### 3. Instale as dependências com o Poetry
 
-Se você ainda não possui o [Poetry](https://python-poetry.org/), instale antes de continuar.
-
-Depois, no PowerShell:
-
 ```powershell
 poetry install
 ```
@@ -90,6 +86,10 @@ Ao rodar o script pela primeira vez, você será solicitado a informar:
 * `REDIRECT_URI` (ex: `http://127.0.0.1:8888/callback`)
 
 Esses dados são obtidos ao registrar seu app no [Spotify Developer Dashboard](https://developer.spotify.com/dashboard).
+
+![Watch Mix](Screenshot_2.png)
+![Watch Mix](Screenshot_3.png)
+
 
 > Após essa etapa, o script abrirá uma janela no navegador para autorizar o acesso à sua conta. O token será salvo automaticamente no `.env`.
 
