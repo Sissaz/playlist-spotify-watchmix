@@ -1,4 +1,5 @@
 import os, random, time, threading, requests, webbrowser
+from collections import defaultdict
 from datetime import date
 from flask import Flask, request, redirect
 from werkzeug.serving import make_server
@@ -88,7 +89,8 @@ def garantir_env():
 
 # ---------- CONFIG ----------
 
-TARGET_SIZE   = 30
+TARGET_SIZE     = 30
+MAX_POR_ARTISTA = 1
 PLAYLIST_NAME = "Watch Mix"
 SCOPES        = "user-library-read playlist-modify-private"
 
@@ -239,6 +241,37 @@ def atualizar_env(chave, valor):
         f.writelines(linhas)
 
 
+# ---------- Amostragem diversificada por artista ----------
+def amostra_diversificada(faixas, tamanho, max_por_artista=MAX_POR_ARTISTA):
+    """Sorteia até `tamanho` URIs, limitando quantas faixas do mesmo artista entram,
+    e só repete artista se não houver artistas diferentes suficientes."""
+    por_artista = defaultdict(list)
+    for uri, artist_id in faixas:
+        por_artista[artist_id].append(uri)
+
+    grupos = list(por_artista.values())
+    for grupo in grupos:
+        random.shuffle(grupo)
+    random.shuffle(grupos)
+
+    selecionadas = []
+    rodada = 0
+    while len(selecionadas) < tamanho and rodada < max_por_artista:
+        for grupo in grupos:
+            if len(selecionadas) >= tamanho:
+                break
+            if rodada < len(grupo):
+                selecionadas.append(grupo[rodada])
+        rodada += 1
+
+    if len(selecionadas) < tamanho:
+        restantes = [uri for grupo in grupos for uri in grupo[rodada:]]
+        random.shuffle(restantes)
+        selecionadas += restantes[:tamanho - len(selecionadas)]
+
+    return selecionadas
+
+
 # ---------- Main ----------
 def main():
     selecionar_idioma()
@@ -254,15 +287,19 @@ def main():
     headers = {"Authorization": f"Bearer {token}"}
     user_id = sp_get("https://api.spotify.com/v1/me", headers)["id"]
 
-    uris, url = [], SPOTIFY_SAVED + "?limit=50"
+    faixas, url = [], SPOTIFY_SAVED + "?limit=50"
     while url:
         data = sp_get(url, headers)
-        uris += [i["track"]["uri"] for i in data["items"]]
+        for i in data["items"]:
+            track = i["track"]
+            artistas = track.get("artists") or []
+            artist_id = artistas[0]["id"] if artistas else None
+            faixas.append((track["uri"], artist_id))
         url = data.get("next")
-    if not uris: 
+    if not faixas:
         print(texto["nenhuma_track"]); return
 
-    sample = random.sample(uris, min(TARGET_SIZE, len(uris)))
+    sample = amostra_diversificada(faixas, min(TARGET_SIZE, len(faixas)))
     pid    = obter_playlist_id(headers, user_id)
     substituir_faixas(headers, pid, sample)
 
