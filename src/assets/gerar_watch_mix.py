@@ -17,14 +17,11 @@ TEXTOS = {
         "playlist_nao_existe": "Playlist ID {pid} não existe. Remova PLAYLIST_ID do .env e rode de novo.",
         "refresh_salvo": "\n✅ Refresh Token salvo automaticamente no .env. Por favor, aguarde o script finalizar o job.",
         "configure_id": "Configure CLIENT_ID e CLIENT_SECRET.",
-        "playlist_atualizada": "✅  '{nome}' atualizada ({qtd} faixas · {data}). ID: {pid}",
         "escolha_idioma": "🌐 Selecione o idioma / Select language:\n1 - Português\n2 - English\n>> ",
         "digite_client_id": "Digite seu CLIENT_ID: ",
         "digite_client_secret": "Digite seu CLIENT_SECRET: ",
         "digite_redirect_uri": "Digite seu REDIRECT_URI (ex: http://127.0.0.1:8888/callback): ",
         "playlist_atualizada": "✅  '{nome}' atualizada ({quantidade} faixas · {data}). ID: {id}"
-
-        
     },
     "en": {
         "sem_env": "⚙️  .env file with your Spotify credentials not found. Let's create it now.",
@@ -36,7 +33,6 @@ TEXTOS = {
         "playlist_nao_existe": "Playlist ID {pid} does not exist. Remove PLAYLIST_ID from .env and rerun.",
         "refresh_salvo": "\n✅ Refresh Token automatically saved to .env. Please wait for the job to finish.",
         "configure_id": "Please configure CLIENT_ID and CLIENT_SECRET.",
-        "playlist_atualizada": "✅  '{nome}' updated ({qtd} tracks · {data}). ID: {pid}",
         "escolha_idioma": "🌐 Selecione o idioma / Select language:\n1 - Português\n2 - English\n>> ",
         "digite_client_id": "Enter your CLIENT_ID: ",
         "digite_client_secret": "Enter your CLIENT_SECRET: ",
@@ -157,16 +153,21 @@ def renovar_token(refresh):
 RETRYABLE_STATUS = {429, 500, 502, 503, 504}
 MAX_RETRIES = 5
 
-def sp_get(url, headers):
+def sp_request(method, url, headers, **kwargs):
     for tentativa in range(MAX_RETRIES + 1):
-        r = requests.get(url, headers=headers)
+        r = requests.request(method, url, headers=headers, **kwargs)
         if r.status_code not in RETRYABLE_STATUS or tentativa == MAX_RETRIES:
-            r.raise_for_status()
-            return r.json()
+            return r
 
         espera = float(r.headers.get("Retry-After", 2 ** tentativa))
         print(f"⚠️  {r.status_code} em {url} — tentativa {tentativa + 1}/{MAX_RETRIES}, aguardando {espera:.0f}s...")
         time.sleep(espera)
+    return r
+
+def sp_get(url, headers):
+    r = sp_request("GET", url, headers)
+    r.raise_for_status()
+    return r.json()
 
 # ---------- Playlist helpers ----------
 def obter_playlist_id(headers, user_id):
@@ -195,7 +196,7 @@ def obter_playlist_id(headers, user_id):
         "public": False,
         "description": "Gerada automaticamente para Apple Watch"
     }
-    r = requests.post(CREATE_PL_URL.format(uid=user_id), json=body, headers=headers)
+    r = sp_request("POST", CREATE_PL_URL.format(uid=user_id), headers, json=body)
     r.raise_for_status()
     pid = r.json()["id"]
 
@@ -205,14 +206,14 @@ def obter_playlist_id(headers, user_id):
     return pid
 
 def substituir_faixas(headers, pid, uris):
-    chk = requests.get(f"https://api.spotify.com/v1/playlists/{pid}", headers=headers)
+    chk = sp_request("GET", f"https://api.spotify.com/v1/playlists/{pid}", headers)
     if chk.status_code == 404:
         raise ValueError(f"Playlist ID {pid} não existe. Remova PLAYLIST_ID do .env e rode de novo.")
     chk.raise_for_status()
-    r = requests.put(PL_URL.format(pid=pid), json={"uris": uris[:100]}, headers=headers)
+    r = sp_request("PUT", PL_URL.format(pid=pid), headers, json={"uris": uris[:100]})
     r.raise_for_status()
     for i in range(100, len(uris), 100):
-        r = requests.post(PL_URL.format(pid=pid), json={"uris": uris[i:i+100]}, headers=headers)
+        r = sp_request("POST", PL_URL.format(pid=pid), headers, json={"uris": uris[i:i+100]})
         r.raise_for_status()
 
 
@@ -247,6 +248,7 @@ def main():
     global REFRESH_TOKEN
     if not CLIENT_ID or not CLIENT_SECRET:
         print(texto["configure_id"])
+        return
 
     token, REFRESH_TOKEN = (renovar_token(REFRESH_TOKEN) if REFRESH_TOKEN else gerar_token())
     headers = {"Authorization": f"Bearer {token}"}
