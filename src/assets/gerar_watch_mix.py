@@ -154,10 +154,19 @@ def renovar_token(refresh):
                      "client_id":CLIENT_ID,"client_secret":CLIENT_SECRET})
     return tk["access_token"], tk.get("refresh_token", refresh)
 
+RETRYABLE_STATUS = {429, 500, 502, 503, 504}
+MAX_RETRIES = 5
+
 def sp_get(url, headers):
-    r = requests.get(url, headers=headers)
-    r.raise_for_status()
-    return r.json()
+    for tentativa in range(MAX_RETRIES + 1):
+        r = requests.get(url, headers=headers)
+        if r.status_code not in RETRYABLE_STATUS or tentativa == MAX_RETRIES:
+            r.raise_for_status()
+            return r.json()
+
+        espera = float(r.headers.get("Retry-After", 2 ** tentativa))
+        print(f"⚠️  {r.status_code} em {url} — tentativa {tentativa + 1}/{MAX_RETRIES}, aguardando {espera:.0f}s...")
+        time.sleep(espera)
 
 # ---------- Playlist helpers ----------
 def obter_playlist_id(headers, user_id):
