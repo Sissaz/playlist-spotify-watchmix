@@ -6,6 +6,8 @@ from werkzeug.serving import make_server
 from dotenv import load_dotenv
 from nacl import encoding, public
 
+load_dotenv()
+
 # ---------- Suporte a idiomas ----------
 
 TEXTOS = {
@@ -307,7 +309,6 @@ def amostra_diversificada(faixas, tamanho, max_por_artista=MAX_POR_ARTISTA):
 def main():
     selecionar_idioma()
     garantir_env()
-    load_dotenv()
 
     global REFRESH_TOKEN
     if not CLIENT_ID or not CLIENT_SECRET:
