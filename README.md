@@ -77,7 +77,7 @@ Run the script:
 poetry run python gerar_watch_mix.py
 ```
 
-### 3. First run: provide your Spotify credentials
+### First run: provide your Spotify credentials
 
 The first time you run the script, you'll be asked for:
 
