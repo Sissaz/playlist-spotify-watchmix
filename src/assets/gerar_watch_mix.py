@@ -1,4 +1,4 @@
-import os, random, time, threading, base64, requests, webbrowser
+import os, random, re, subprocess, time, threading, base64, requests, webbrowser
 from collections import defaultdict
 from datetime import date
 from flask import Flask, request, redirect
@@ -157,7 +157,19 @@ def renovar_token(refresh):
                      "client_id":CLIENT_ID,"client_secret":CLIENT_SECRET})
     return tk["access_token"], tk.get("refresh_token", refresh)
 
-REPO_PADRAO = "Sissaz/playlist-spotify-watchmix"
+def detectar_repo_git():
+    """Descobre 'owner/repo' a partir do remote 'origin' do git local,
+    para que o script funcione corretamente em forks (sem apontar para
+    o repositório original)."""
+    try:
+        url = subprocess.check_output(
+            ["git", "-c", "safe.directory=*", "remote", "get-url", "origin"],
+            text=True, stderr=subprocess.DEVNULL,
+        ).strip()
+    except Exception:
+        return None
+    m = re.search(r"github\.com[:/](.+?)(\.git)?$", url)
+    return m.group(1) if m else None
 
 def obter_token(refresh):
     """Tenta renovar o access token com o refresh token salvo. Se o Spotify
@@ -178,7 +190,7 @@ def atualizar_secret_github(nome_secret, valor):
     """Atualiza um secret do repositório no GitHub Actions via API REST,
     usando um PAT (GH_PAT) com permissão de leitura/escrita em Secrets."""
     pat  = os.getenv("GH_PAT")
-    repo = os.getenv("GITHUB_REPOSITORY", REPO_PADRAO)
+    repo = os.getenv("GITHUB_REPOSITORY") or detectar_repo_git()
     if not pat or not repo:
         return False
 
