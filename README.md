@@ -1,35 +1,35 @@
-# 🎧 Watch Mix – Playlist Automática do Spotify
+# 🎧 Watch Mix – Automatic Spotify Playlist
 
-Este projeto gera uma playlist chamada **Watch Mix** com faixas aleatórias das suas músicas curtidas no Spotify. Ela é atualizada diariamente, sempre utilizando o **mesmo ID**, ideal para sincronizar com o **Apple Watch** sem criar novas playlists duplicadas.
-
----
-
-## 🚀 Funcionalidades
-
-* Seleciona aleatoriamente 30 faixas da sua biblioteca de músicas curtidas
-* Substitui o conteúdo de uma única playlist existente (sem criar novas)
-* Automatiza a execução com **GitHub Actions** (execução diária)
-* Utiliza **Poetry** para gerenciamento de dependências
+This project generates a playlist called **Watch Mix** with random tracks from your liked songs on Spotify. It's updated daily, always using the **same ID**, ideal for syncing with the **Apple Watch** without creating duplicate playlists.
 
 ---
 
-## 📦 Pré-requisitos
+## 🚀 Features
 
-* Python 3.12 ou superior
-* Conta no [Spotify Developer Dashboard](https://developer.spotify.com/dashboard)
-* Repositório no GitHub (opcional, para agendamento automático)
+* Randomly selects 30 tracks from your liked songs library
+* Replaces the contents of a single existing playlist (no duplicates created)
+* Automates execution with **GitHub Actions** (daily run)
+* Uses **Poetry** for dependency management
+
+---
+
+## 📦 Prerequisites
+
+* Python 3.12 or higher
+* An account on the [Spotify Developer Dashboard](https://developer.spotify.com/dashboard)
+* A GitHub repository (optional, for automatic scheduling)
 
 
-## ⚙️ Instalação e configuração
+## ⚙️ Installation and setup
 
-> Todas as etapas abaixo devem ser feitas via **PowerShell** no Windows.
+> All steps below should be done via **PowerShell** on Windows.
 
-### 1. Crie uma pasta para o projeto
+### 1. Create a project folder
 
-Os comandos abaixo acessam automaticamente sua Área de Trabalho (Desktop), criam uma nova pasta chamada `playlist-spotify-watchmix` e entram nela.
-Caso prefira criar a pasta em outro local (como em `Documentos`, `Downloads` ou outro diretório), você pode ignorar esses comandos. Basta criar a pasta manualmente onde desejar, abrir o **PowerShell dentro dela** e seguir a partir do **passo 2** normalmente.
+The commands below automatically go to your Desktop, create a new folder called `playlist-spotify-watchmix`, and enter it.
+If you'd rather create the folder somewhere else (like `Documents`, `Downloads`, or another directory), you can skip these commands. Just create the folder manually wherever you want, open **PowerShell inside it**, and continue from **step 2** normally.
 
-Abra o **PowerShell** do Windows e execute os comandos abaixo para criar e acessar a pasta do projeto:
+Open Windows **PowerShell** and run the commands below to create and enter the project folder:
 
 ```powershell
 cd ([Environment]::GetFolderPath('Desktop'))
@@ -43,9 +43,9 @@ mkdir playlist-spotify-watchmix
 cd playlist-spotify-watchmix
 ```
 
-> Isso irá criar uma pasta chamada `playlist-spotify-watchmix` na sua área de trabalho e já posicionar você dentro dela.
+> This will create a folder called `playlist-spotify-watchmix` on your desktop and put you inside it.
 
-### 2. Clone o repositório e acesse a pasta do script
+### 2. Clone the repository and go to the script folder
 
 ```powershell
 git clone https://github.com/Sissaz/playlist-spotify-watchmix.git
@@ -55,7 +55,7 @@ git clone https://github.com/Sissaz/playlist-spotify-watchmix.git
 cd playlist-spotify-watchmix\src\assets
 ```
 
-### 3. Instale as dependências com o Poetry
+### 3. Install dependencies with Poetry
 
 ```powershell
 poetry install
@@ -63,45 +63,45 @@ poetry install
 
 ---
 
-## ▶️ Execução manual
+## ▶️ Manual run
 
-Ative o ambiente virtual:
+Activate the virtual environment:
 
 ```powershell
 poetry shell
 ```
 
-Rode o script:
+Run the script:
 
 ```powershell
 poetry run python gerar_watch_mix.py
 ```
 
-### 3. Primeira execução: forneça suas credenciais do Spotify
+### 3. First run: provide your Spotify credentials
 
-Ao rodar o script pela primeira vez, você será solicitado a informar:
+The first time you run the script, you'll be asked for:
 
 * `CLIENT_ID`
 * `CLIENT_SECRET`
-* `REDIRECT_URI` (ex: `http://127.0.0.1:8888/callback`)
+* `REDIRECT_URI` (e.g. `http://127.0.0.1:8888/callback`)
 
-Esses dados são obtidos ao registrar seu app no [Spotify Developer Dashboard](https://developer.spotify.com/dashboard).
+These values come from registering your app on the [Spotify Developer Dashboard](https://developer.spotify.com/dashboard).
 
 ![Screenshot](src/assets/images/Screenshot_2.png)
 ![Screenshot](src/assets/images/Screenshot_3.png)
 
 
-> Após essa etapa, o script abrirá uma janela no navegador para autorizar o acesso à sua conta. O token será salvo automaticamente no `.env`.
+> After this step, the script will open a browser window to authorize access to your account. The token is saved automatically to `.env`.
 
-Na segunda execução, o script criará automaticamente a playlist **Watch Mix** (caso ainda não exista) e atualizará o arquivo `.env` com o `PLAYLIST_ID`.
+On the second run, the script will automatically create the **Watch Mix** playlist (if it doesn't exist yet) and update the `.env` file with the `PLAYLIST_ID`.
 
 ---
 
-## ⏰ Execução automática (via GitHub Actions)
+## ⏰ Automatic execution (via GitHub Actions)
 
-Este projeto já inclui um workflow: `.github/workflows/watch_mix.yml`, que executa o script **diariamente** de forma automática (05:00 BRT / 08:00 UTC).
+This project already includes a workflow: `.github/workflows/watch_mix.yml`, which runs the script **daily** automatically (05:00 BRT / 08:00 UTC).
 
-Para o workflow funcionar, o repositório precisa destes secrets em **Settings > Secrets and variables > Actions**:
+For the workflow to work, the repository needs these secrets under **Settings > Secrets and variables > Actions**:
 
 ```
 SPOTIFY_CLIENT_ID
@@ -111,32 +111,32 @@ SPOTIFY_REFRESH_TOKEN
 PLAYLIST_ID
 ```
 
-Você pode criá-los de duas formas:
+You can create them in two ways:
 
-### Opção A — automático (recomendado)
+### Option A — automatic (recommended)
 
-1. Crie um [Personal Access Token](https://github.com/settings/personal-access-tokens/new) do GitHub, escopado só neste repositório, com a permissão **Secrets: Read and write**.
-2. Adicione esse token ao seu `.env` local: `GH_PAT=<seu_token>`.
-3. Rode o script localmente uma vez (`poetry run python gerar_watch_mix.py`) e autorize no navegador quando pedido.
+1. Create a GitHub [Personal Access Token](https://github.com/settings/personal-access-tokens/new), scoped to this repository only, with **Secrets: Read and write** permission.
+2. Add that token to your local `.env`: `GH_PAT=<your_token>`.
+3. Run the script locally once (`poetry run python gerar_watch_mix.py`) and authorize in the browser when prompted.
 
-O próprio script publica todos os secrets acima automaticamente no repositório (inclusive o `GH_PAT`, para que o workflow consiga se auto-atualizar depois se o Spotify emitir um refresh token novo). Nenhuma criação manual de secret é necessária.
+The script itself publishes all the secrets above automatically to the repository (including `GH_PAT`, so the workflow can later update itself if Spotify ever issues a new refresh token). No manual secret creation is needed.
 
-### Opção B — manual
+### Option B — manual
 
-Se preferir não criar um PAT, crie cada secret manualmente em **Settings > Secrets and variables > Actions > New repository secret**, copiando os valores do seu `.env` local após a primeira execução (`REFRESH_TOKEN` e `PLAYLIST_ID` só existem depois de rodar o script pelo menos uma vez).
+If you'd rather not create a PAT, create each secret manually under **Settings > Secrets and variables > Actions > New repository secret**, copying the values from your local `.env` after the first run (`REFRESH_TOKEN` and `PLAYLIST_ID` only exist after running the script at least once).
 
-### Se o token quebrar (acesso revogado, secret trocado, etc.)
+### If the token breaks (access revoked, secret rotated, etc.)
 
-Rode o script localmente de novo (`poetry run python gerar_watch_mix.py`). Se o refresh token salvo estiver inválido, o script detecta sozinho e abre o navegador para uma nova autorização — não precisa apagar nada do `.env` na mão. Com `GH_PAT` configurado, o novo token já é publicado automaticamente no secret do GitHub.
+Run the script locally again (`poetry run python gerar_watch_mix.py`). If the saved refresh token is invalid, the script detects it automatically and opens the browser for a new authorization — no need to manually clear anything in `.env`. With `GH_PAT` set, the new token is published automatically to the GitHub secret.
 
 ---
 
-## ⏲️ Cron de agendamento
+## ⏲️ Schedule (cron)
 
-O agendamento atual está configurado para rodar todos os dias às 08:00 UTC (05:00 BRT):
+The current schedule is set to run every day at 08:00 UTC (05:00 BRT):
 
 ```
 0 8 * * *
 ```
 
-Você pode alterar esse horário no arquivo `.github/workflows/watch_mix.yml` conforme sua necessidade.
+You can change this schedule in `.github/workflows/watch_mix.yml` as needed.
