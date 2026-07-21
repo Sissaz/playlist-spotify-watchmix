@@ -107,6 +107,9 @@ SPOTIFY_SAVED = "https://api.spotify.com/v1/me/tracks"
 PL_URL        = "https://api.spotify.com/v1/playlists/{pid}/tracks"
 CREATE_PL_URL = "https://api.spotify.com/v1/users/{uid}/playlists"
 
+RETRYABLE_STATUS = {429, 500, 502, 503, 504}
+MAX_RETRIES = 5
+
 # ---------- OAuth infra ----------
 app, auth_code = Flask(__name__), None
 class ServerThread(threading.Thread):
@@ -125,8 +128,15 @@ def success():
     return "<h3>Autorizado ✔ &nbsp;Pode fechar.<script>window.close()</script>"
 
 def post_token(data):
-    r = requests.post("https://accounts.spotify.com/api/token", data=data,
-                      headers={"Content-Type":"application/x-www-form-urlencoded"})
+    for tentativa in range(MAX_RETRIES + 1):
+        r = requests.post("https://accounts.spotify.com/api/token", data=data,
+                          headers={"Content-Type":"application/x-www-form-urlencoded"})
+        if r.status_code not in RETRYABLE_STATUS or tentativa == MAX_RETRIES:
+            break
+        espera = float(r.headers.get("Retry-After", 2 ** tentativa))
+        print(f"⚠️  {r.status_code} em /api/token — tentativa {tentativa + 1}/{MAX_RETRIES}, aguardando {espera:.0f}s...")
+        time.sleep(espera)
+
     if not r.ok:
         print(f"❌ Spotify token error {r.status_code}: {r.text}")
     r.raise_for_status()
@@ -146,9 +156,9 @@ def gerar_token():
     access, refresh = tk["access_token"], tk.get("refresh_token")
 
     # Atualiza o .env automaticamente com o refresh token
-    with open(".env", "a") as f:
-        f.write(f"REFRESH_TOKEN={refresh}\n")
-    print(texto["refresh_salvo"])
+    if refresh:
+        atualizar_env("REFRESH_TOKEN", refresh)
+        print(texto["refresh_salvo"])
 
     return access, refresh
 
@@ -175,8 +185,14 @@ def obter_token(refresh):
     """Tenta renovar o access token com o refresh token salvo. Se o Spotify
     recusar (token revogado/invalido), cai automaticamente para uma nova
     autorizacao interativa — exceto em CI, onde nao ha navegador disponivel
-    e o erro deve subir para falhar o job de forma visivel."""
+    para autorizar, e por isso o erro deve subir para falhar o job de forma
+    visivel em vez de travar esperando um callback que nunca vai chegar."""
     if not refresh:
+        if os.getenv("GITHUB_ACTIONS") == "true":
+            raise RuntimeError(
+                "REFRESH_TOKEN não configurado. Rode o script localmente uma "
+                "vez para autorizar e gerar um token antes de usar o workflow."
+            )
         return gerar_token()
     try:
         return renovar_token(refresh)
@@ -240,9 +256,6 @@ def bootstrap_secrets_github(valores):
         print("⚠️  Não foi possível publicar todos os secrets automaticamente no GitHub.")
     else:
         print("🔐 Secrets publicados automaticamente no repositório do GitHub. O workflow já pode rodar sem configuração manual.")
-
-RETRYABLE_STATUS = {429, 500, 502, 503, 504}
-MAX_RETRIES = 5
 
 def sp_request(method, url, headers, **kwargs):
     for tentativa in range(MAX_RETRIES + 1):
