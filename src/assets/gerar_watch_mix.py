@@ -1,9 +1,10 @@
-import os, random, time, threading, requests, webbrowser
+import os, random, time, threading, base64, requests, webbrowser
 from collections import defaultdict
 from datetime import date
 from flask import Flask, request, redirect
 from werkzeug.serving import make_server
 from dotenv import load_dotenv
+from nacl import encoding, public
 
 # ---------- Suporte a idiomas ----------
 
@@ -124,6 +125,8 @@ def success():
 def post_token(data):
     r = requests.post("https://accounts.spotify.com/api/token", data=data,
                       headers={"Content-Type":"application/x-www-form-urlencoded"})
+    if not r.ok:
+        print(f"❌ Spotify token error {r.status_code}: {r.text}")
     r.raise_for_status()
     return r.json()
 
@@ -151,6 +154,34 @@ def renovar_token(refresh):
     tk = post_token({"grant_type":"refresh_token","refresh_token":refresh,
                      "client_id":CLIENT_ID,"client_secret":CLIENT_SECRET})
     return tk["access_token"], tk.get("refresh_token", refresh)
+
+def atualizar_secret_github(nome_secret, valor):
+    """Atualiza um secret do repositório no GitHub Actions via API REST,
+    usando um PAT (GH_PAT) com permissão de leitura/escrita em Secrets."""
+    pat  = os.getenv("GH_PAT")
+    repo = os.getenv("GITHUB_REPOSITORY")
+    if not pat or not repo:
+        return False
+
+    api = f"https://api.github.com/repos/{repo}/actions/secrets"
+    headers = {
+        "Authorization": f"Bearer {pat}",
+        "Accept": "application/vnd.github+json",
+    }
+
+    r = requests.get(f"{api}/public-key", headers=headers)
+    r.raise_for_status()
+    chave = r.json()
+
+    public_key = public.PublicKey(chave["key"].encode(), encoding.Base64Encoder())
+    encrypted  = public.SealedBox(public_key).encrypt(valor.encode())
+
+    r = requests.put(f"{api}/{nome_secret}", headers=headers, json={
+        "encrypted_value": base64.b64encode(encrypted).decode(),
+        "key_id": chave["key_id"],
+    })
+    r.raise_for_status()
+    return True
 
 RETRYABLE_STATUS = {429, 500, 502, 503, 504}
 MAX_RETRIES = 5
@@ -283,7 +314,15 @@ def main():
         print(texto["configure_id"])
         return
 
+    refresh_original = REFRESH_TOKEN
     token, REFRESH_TOKEN = (renovar_token(REFRESH_TOKEN) if REFRESH_TOKEN else gerar_token())
+
+    if os.getenv("GITHUB_ACTIONS") == "true" and REFRESH_TOKEN != refresh_original:
+        if atualizar_secret_github("SPOTIFY_REFRESH_TOKEN", REFRESH_TOKEN):
+            print("🔐 Refresh Token atualizado automaticamente no secret do GitHub.")
+        else:
+            print("⚠️  Refresh Token mudou, mas não foi possível atualizar o secret (defina GH_PAT nos secrets do repositório).")
+
     headers = {"Authorization": f"Bearer {token}"}
     user_id = sp_get("https://api.spotify.com/v1/me", headers)["id"]
 
