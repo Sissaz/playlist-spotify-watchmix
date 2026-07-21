@@ -157,11 +157,28 @@ def renovar_token(refresh):
                      "client_id":CLIENT_ID,"client_secret":CLIENT_SECRET})
     return tk["access_token"], tk.get("refresh_token", refresh)
 
+REPO_PADRAO = "Sissaz/playlist-spotify-watchmix"
+
+def obter_token(refresh):
+    """Tenta renovar o access token com o refresh token salvo. Se o Spotify
+    recusar (token revogado/invalido), cai automaticamente para uma nova
+    autorizacao interativa — exceto em CI, onde nao ha navegador disponivel
+    e o erro deve subir para falhar o job de forma visivel."""
+    if not refresh:
+        return gerar_token()
+    try:
+        return renovar_token(refresh)
+    except requests.exceptions.HTTPError:
+        if os.getenv("GITHUB_ACTIONS") == "true":
+            raise
+        print("⚠️  Refresh Token invalido ou expirado. Iniciando nova autorização no navegador...")
+        return gerar_token()
+
 def atualizar_secret_github(nome_secret, valor):
     """Atualiza um secret do repositório no GitHub Actions via API REST,
     usando um PAT (GH_PAT) com permissão de leitura/escrita em Secrets."""
     pat  = os.getenv("GH_PAT")
-    repo = os.getenv("GITHUB_REPOSITORY")
+    repo = os.getenv("GITHUB_REPOSITORY", REPO_PADRAO)
     if not pat or not repo:
         return False
 
@@ -316,13 +333,13 @@ def main():
         return
 
     refresh_original = REFRESH_TOKEN
-    token, REFRESH_TOKEN = (renovar_token(REFRESH_TOKEN) if REFRESH_TOKEN else gerar_token())
+    token, REFRESH_TOKEN = obter_token(REFRESH_TOKEN)
 
-    if os.getenv("GITHUB_ACTIONS") == "true" and REFRESH_TOKEN != refresh_original:
+    if REFRESH_TOKEN != refresh_original:
         if atualizar_secret_github("SPOTIFY_REFRESH_TOKEN", REFRESH_TOKEN):
             print("🔐 Refresh Token atualizado automaticamente no secret do GitHub.")
         else:
-            print("⚠️  Refresh Token mudou, mas não foi possível atualizar o secret (defina GH_PAT nos secrets do repositório).")
+            print("⚠️  Refresh Token mudou, mas não foi possível atualizar o secret (defina GH_PAT nos secrets do repositório ou no .env local).")
 
     headers = {"Authorization": f"Bearer {token}"}
     user_id = sp_get("https://api.spotify.com/v1/me", headers)["id"]
