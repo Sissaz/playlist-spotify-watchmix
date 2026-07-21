@@ -99,33 +99,44 @@ Na segunda execução, o script criará automaticamente a playlist **Watch Mix**
 
 ## ⏰ Execução automática (via GitHub Actions)
 
-Este projeto já inclui um workflow:
-`.github/workflows/run_watch_mix.yml`
-Ele executa o script **diariamente** de forma automática.
+Este projeto já inclui um workflow: `.github/workflows/watch_mix.yml`, que executa o script **diariamente** de forma automática (05:00 BRT / 08:00 UTC).
 
-### Como configurar:
-
-1. Suba o projeto para o seu GitHub.
-2. Vá até **Settings > Secrets and variables > Actions > New repository secret** e adicione:
+Para o workflow funcionar, o repositório precisa destes secrets em **Settings > Secrets and variables > Actions**:
 
 ```
-CLIENT_ID
-CLIENT_SECRET
-REDIRECT_URI
-REFRESH_TOKEN
+SPOTIFY_CLIENT_ID
+SPOTIFY_CLIENT_SECRET
+SPOTIFY_REDIRECT_URI
+SPOTIFY_REFRESH_TOKEN
 PLAYLIST_ID
 ```
 
-> ⚠️ O `REFRESH_TOKEN` e o `PLAYLIST_ID` são obtidos após rodar o script manualmente pela primeira vez.
+Você pode criá-los de duas formas:
+
+### Opção A — automático (recomendado)
+
+1. Crie um [Personal Access Token](https://github.com/settings/personal-access-tokens/new) do GitHub, escopado só neste repositório, com a permissão **Secrets: Read and write**.
+2. Adicione esse token ao seu `.env` local: `GH_PAT=<seu_token>`.
+3. Rode o script localmente uma vez (`poetry run python gerar_watch_mix.py`) e autorize no navegador quando pedido.
+
+O próprio script publica todos os secrets acima automaticamente no repositório (inclusive o `GH_PAT`, para que o workflow consiga se auto-atualizar depois se o Spotify emitir um refresh token novo). Nenhuma criação manual de secret é necessária.
+
+### Opção B — manual
+
+Se preferir não criar um PAT, crie cada secret manualmente em **Settings > Secrets and variables > Actions > New repository secret**, copiando os valores do seu `.env` local após a primeira execução (`REFRESH_TOKEN` e `PLAYLIST_ID` só existem depois de rodar o script pelo menos uma vez).
+
+### Se o token quebrar (acesso revogado, secret trocado, etc.)
+
+Rode o script localmente de novo (`poetry run python gerar_watch_mix.py`). Se o refresh token salvo estiver inválido, o script detecta sozinho e abre o navegador para uma nova autorização — não precisa apagar nada do `.env` na mão. Com `GH_PAT` configurado, o novo token já é publicado automaticamente no secret do GitHub.
 
 ---
 
 ## ⏲️ Cron de agendamento
 
-O agendamento atual está configurado para rodar todos os dias às 5h UTC:
+O agendamento atual está configurado para rodar todos os dias às 08:00 UTC (05:00 BRT):
 
 ```
-0 5 * * *
+0 8 * * *
 ```
 
-Você pode alterar esse horário no arquivo `run_watch_mix.yml` conforme sua necessidade.
+Você pode alterar esse horário no arquivo `.github/workflows/watch_mix.yml` conforme sua necessidade.

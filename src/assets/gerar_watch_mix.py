@@ -202,6 +202,33 @@ def atualizar_secret_github(nome_secret, valor):
     r.raise_for_status()
     return True
 
+SECRETS_GITHUB = {
+    "CLIENT_ID":     "SPOTIFY_CLIENT_ID",
+    "CLIENT_SECRET": "SPOTIFY_CLIENT_SECRET",
+    "REDIRECT_URI":  "SPOTIFY_REDIRECT_URI",
+    "REFRESH_TOKEN": "SPOTIFY_REFRESH_TOKEN",
+    "PLAYLIST_ID":   "PLAYLIST_ID",
+    "GH_PAT":        "GH_PAT",
+}
+
+def bootstrap_secrets_github(valores):
+    """Na primeira execução local com GH_PAT definido no .env, publica todos
+    os secrets necessários no repositório do GitHub de uma vez — assim quem
+    clona o repo não precisa criar nenhum secret manualmente na interface do
+    GitHub, só rodar o script localmente uma vez."""
+    if os.getenv("GITHUB_ACTIONS") == "true" or not os.getenv("GH_PAT"):
+        return
+
+    falhou = False
+    for chave, valor in valores.items():
+        if valor and not atualizar_secret_github(SECRETS_GITHUB[chave], valor):
+            falhou = True
+
+    if falhou:
+        print("⚠️  Não foi possível publicar todos os secrets automaticamente no GitHub.")
+    else:
+        print("🔐 Secrets publicados automaticamente no repositório do GitHub. O workflow já pode rodar sem configuração manual.")
+
 RETRYABLE_STATUS = {429, 500, 502, 503, 504}
 MAX_RETRIES = 5
 
@@ -335,11 +362,11 @@ def main():
     refresh_original = REFRESH_TOKEN
     token, REFRESH_TOKEN = obter_token(REFRESH_TOKEN)
 
-    if REFRESH_TOKEN != refresh_original:
+    if REFRESH_TOKEN != refresh_original and os.getenv("GITHUB_ACTIONS") == "true":
         if atualizar_secret_github("SPOTIFY_REFRESH_TOKEN", REFRESH_TOKEN):
             print("🔐 Refresh Token atualizado automaticamente no secret do GitHub.")
         else:
-            print("⚠️  Refresh Token mudou, mas não foi possível atualizar o secret (defina GH_PAT nos secrets do repositório ou no .env local).")
+            print("⚠️  Refresh Token mudou, mas não foi possível atualizar o secret (defina GH_PAT nos secrets do repositório).")
 
     headers = {"Authorization": f"Bearer {token}"}
     user_id = sp_get("https://api.spotify.com/v1/me", headers)["id"]
@@ -359,6 +386,15 @@ def main():
     sample = amostra_diversificada(faixas, min(TARGET_SIZE, len(faixas)))
     pid    = obter_playlist_id(headers, user_id)
     substituir_faixas(headers, pid, sample)
+
+    bootstrap_secrets_github({
+        "CLIENT_ID": CLIENT_ID,
+        "CLIENT_SECRET": CLIENT_SECRET,
+        "REDIRECT_URI": REDIRECT_URI,
+        "REFRESH_TOKEN": REFRESH_TOKEN,
+        "PLAYLIST_ID": pid,
+        "GH_PAT": os.getenv("GH_PAT"),
+    })
 
     print(texto["playlist_atualizada"].format(
     nome=PLAYLIST_NAME,
