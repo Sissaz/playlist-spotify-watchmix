@@ -400,7 +400,9 @@ def main():
     while url:
         data = sp_get(url, headers)
         for i in data["items"]:
-            track = i["track"]
+            track = i.get("track")
+            if not track or not track.get("uri"):
+                continue
             artistas = track.get("artists") or []
             artist_id = artistas[0]["id"] if artistas else None
             faixas.append((track["uri"], artist_id))
